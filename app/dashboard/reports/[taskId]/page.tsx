@@ -3,19 +3,19 @@
 import {Spin} from 'antd';
 import {ArrowLeft} from 'lucide-react';
 import {useParams, useRouter} from 'next/navigation';
-import {useEditReport} from './hooks/useEditReport';
+import {useSubmitReport} from './hooks/useSubmitReport';
 
-import {TaskInfoCard} from './partials/taskInfoCard';
 import {SubmitForm} from './partials/submitForm';
+import {TaskInfoCard} from './partials/taskInfoCard';
 
-export default function EditReportPage() {
+export default function SubmitReportPage() {
   const params = useParams();
   const router = useRouter();
 
   const actualId = (params?.taskId || params?.id) as string;
 
   const {form, taskDetail, isLoading, isSubmitting, onFinish} =
-    useEditReport(actualId);
+    useSubmitReport(actualId);
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function EditReportPage() {
         className="flex items-center gap-2 text-white/80 hover:text-white mb-6 w-fit transition-colors"
       >
         <ArrowLeft size={20} />
-        <span className="font-semibold">Back to History</span>
+        <span className="font-semibold">Back to Schedule</span>
       </button>
 
       <TaskInfoCard taskDetail={taskDetail} />

@@ -1,15 +1,13 @@
-export interface EditTaskDetail {
+export interface TaskDetail {
   id: number;
-  reportId: number;
   mopTitle: string;
   docNumber: string;
   category: string;
   scheduledDate: string;
   picName: string;
-  rejectionNotes?: string;
 }
 
-export interface EditEvidenceItem {
+export interface EvidenceItem {
   actionTitle: string;
   actionFileList?: any[];
   actionDesc: string;
@@ -19,7 +17,7 @@ export interface EditEvidenceItem {
   outcomeDesc: string;
 }
 
-export interface EditReportFormValues {
+export interface ReportFormValues {
   supervisorName: string;
-  evidences: EditEvidenceItem[];
+  evidences: EvidenceItem[];
 }
