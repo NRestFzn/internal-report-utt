@@ -118,7 +118,7 @@ export default function Sidebar({menuItems}: SidebarProps) {
                   <div
                     className={cn(
                       'flex items-center gap-4 px-4 py-4 rounded-xl transition-all duration-200 group relative select-none',
-                      isOpen
+                      isChildActive
                         ? 'bg-[#293038]! text-white! shadow-lg font-semibold'
                         : 'hover:bg-white/10 text-white!',
                     )}
