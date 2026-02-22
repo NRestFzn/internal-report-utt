@@ -21,9 +21,12 @@ export async function getTaskDetail(taskId: string): Promise<TaskDetail> {
     `,
     )
     .eq('id', taskId)
-    .single();
+    .maybeSingle();
 
-  if (error || !data) throw new Error(error?.message || 'Task not found');
+  if (error) throw new Error(error.message);
+
+  if (!data)
+    throw new Error(`Task with ID ${taskId} was not found in the database.`);
 
   const mop = Array.isArray(data.mops) ? data.mops[0] : data.mops;
   const categoryName = mop?.categories
@@ -61,7 +64,7 @@ async function uploadEvidenceFile(
     .upload(fileName, file);
 
   if (uploadError)
-    throw new Error(`Gagal upload gambar ${prefix}: ${uploadError.message}`);
+    throw new Error(`Failed to upload ${prefix} image: ${uploadError.message}`);
 
   const {data: publicUrlData} = supabase.storage
     .from('evidences')
@@ -85,7 +88,7 @@ export async function submitReportToDB(
     .single();
 
   if (reportError)
-    throw new Error(`Gagal membuat report: ${reportError.message}`);
+    throw new Error(`Failed to create report: ${reportError.message}`);
 
   const reportId = reportData.id;
 

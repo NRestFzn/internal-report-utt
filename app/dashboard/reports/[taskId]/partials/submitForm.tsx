@@ -2,14 +2,14 @@ import {Button, Form, Input, Upload, Modal} from 'antd';
 import {FormInstance} from 'antd/es/form';
 import {PlusOutlined, MinusCircleOutlined} from '@ant-design/icons';
 import {Inbox} from 'lucide-react';
-import {EditReportFormValues} from '../types';
+import {ReportFormValues} from '../types';
 
 const {Dragger} = Upload;
 
 interface SubmitFormProps {
-  form: FormInstance<EditReportFormValues>;
+  form: FormInstance<ReportFormValues>;
   isSubmitting: boolean;
-  onFinish: (values: EditReportFormValues) => void;
+  onFinish: (values: ReportFormValues) => void;
 }
 
 export function SubmitForm({form, isSubmitting, onFinish}: SubmitFormProps) {
@@ -21,11 +21,11 @@ export function SubmitForm({form, isSubmitting, onFinish}: SubmitFormProps) {
     className: 'custom-dragger',
   };
 
-  const handleConfirmSubmit = (values: EditReportFormValues) => {
+  const handleConfirmSubmit = (values: ReportFormValues) => {
     modal.confirm({
       title: 'Submit Report?',
       content:
-        'Pastikan semua foto bukti dan deskripsi sudah benar. Report yang sudah disubmit akan dikirim ke Admin untuk proses Approval.',
+        'Please ensure all evidence photos and descriptions are correct. Submitted reports will be sent to the Admin for approval.',
       okText: 'Yes, Submit',
       cancelText: 'Check Again',
       centered: true,

@@ -1,7 +1,7 @@
-import {EditTaskDetail} from '../types';
+import {TaskDetail} from '../types';
 
 interface TaskInfoCardProps {
-  taskDetail: EditTaskDetail | null;
+  taskDetail: TaskDetail | null;
 }
 
 export function TaskInfoCard({taskDetail}: TaskInfoCardProps) {
