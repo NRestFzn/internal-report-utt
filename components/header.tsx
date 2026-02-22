@@ -13,6 +13,7 @@ export default function Header(props: {logoutRedirectUri: string}) {
   const supabase = createClient();
   const [displayName, setDisplayName] = useState('User');
   const [displayRole, setDisplayRole] = useState('User');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -28,7 +29,7 @@ export default function Header(props: {logoutRedirectUri: string}) {
 
       const {data: profile} = await supabase
         .from('profiles')
-        .select('fullname, roles(name)')
+        .select('fullname, roles(name), avatar_url')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -42,6 +43,7 @@ export default function Header(props: {logoutRedirectUri: string}) {
 
       setDisplayName(profile?.fullname || user.email || 'User');
       setDisplayRole(roleName);
+      setAvatarUrl(profile?.avatar_url || null);
     };
 
     loadProfile();
@@ -89,8 +91,9 @@ export default function Header(props: {logoutRedirectUri: string}) {
           </div>
           <Avatar
             size="large"
-            icon={<UserOutlined />}
-            className="bg-white text-[#6168FF]"
+            src={avatarUrl}
+            icon={!avatarUrl ? <UserOutlined /> : undefined}
+            className="bg-white text-[#6168FF] flex items-center justify-center"
           />
         </div>
       </Dropdown>
