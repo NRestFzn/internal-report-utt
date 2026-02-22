@@ -12,7 +12,7 @@ export default function EditReportPage() {
   const params = useParams();
   const router = useRouter();
 
-  const actualId = (params?.reportId || params?.id) as string;
+  const actualId = (params?.taskId || params?.id) as string;
 
   const {form, taskDetail, isLoading, isSubmitting, onFinish} =
     useEditReport(actualId);
