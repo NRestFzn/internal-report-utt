@@ -16,6 +16,7 @@ export default function AdminLoginPage() {
               src="/utt-main-logo.svg"
               alt="United Transworld Trading Logo"
               fill
+              sizes="(max-width: 768px) 4rem, 4rem"
               className="object-contain"
               priority
             />
@@ -40,6 +41,7 @@ export default function AdminLoginPage() {
               src="/crowd-login.svg"
               alt="Workers Illustration"
               fill
+              sizes="50vw"
               className="object-contain"
               priority
             />
