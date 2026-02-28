@@ -118,8 +118,9 @@ export function HistoryDetailModal({
                         >
                           <Image
                             src={evidence.actionImageUrl}
-                            alt={`Action ${index + 1}`}
+                            alt="Action"
                             fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover"
                           />
                         </a>
@@ -151,8 +152,9 @@ export function HistoryDetailModal({
                         >
                           <Image
                             src={evidence.outcomeImageUrl}
-                            alt={`Outcome ${index + 1}`}
+                            alt="Outcome"
                             fill
+                            sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover"
                           />
                         </a>

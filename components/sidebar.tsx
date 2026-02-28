@@ -20,6 +20,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({menuItems}: SidebarProps) {
+  const [isMobile, setIsMobile] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const pathname = usePathname();
@@ -32,6 +33,16 @@ export default function Sidebar({menuItems}: SidebarProps) {
     if (parentWithActiveChild) {
       setOpenMenu(parentWithActiveChild.title);
     }
+    
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) setIsCollapsed(true);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, [pathname, menuItems]);
 
   const handleMenuClick = (item: MenuItem) => {
@@ -42,16 +53,25 @@ export default function Sidebar({menuItems}: SidebarProps) {
   };
 
   return (
-    <aside
-      className={cn(
-        'h-screen bg-[#9A9FFF] text-white transition-all duration-300 relative flex flex-col shadow-xl z-40 shrink-0',
-        isCollapsed ? 'w-22.5' : 'w-[320px]',
+    <>
+      {/* Mobile backdrop */}
+      {isMobile && !isCollapsed && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
+          onClick={() => setIsCollapsed(true)}
+        />
       )}
-    >
+      
+      <aside
+        className={cn(
+          'h-screen bg-[#9A9FFF] text-white transition-all duration-300 relative flex flex-col shadow-xl z-50 shrink-0 md:static fixed top-0 left-0',
+          isCollapsed ? '-translate-x-full md:translate-x-0 w-[280px] md:w-22.5' : 'translate-x-0 w-[280px] md:w-[320px]',
+        )}
+      >
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
         className={cn(
-          'absolute -right-14 top-2 p-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all group z-50 cursor-pointer border border-white/10 shadow-lg',
+          'absolute -right-14 top-2 p-2 rounded-xl bg-[#293038] hover:bg-[#1a1f24] backdrop-blur-sm transition-all group z-50 cursor-pointer border border-white/10 shadow-lg md:bg-white/10 md:hover:bg-white/20',
           'w-12 h-12 flex items-center justify-center',
         )}
       >
@@ -215,5 +235,6 @@ export default function Sidebar({menuItems}: SidebarProps) {
         </div>
       )}
     </aside>
+    </>
   );
 }

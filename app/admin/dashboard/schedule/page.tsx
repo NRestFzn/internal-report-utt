@@ -33,7 +33,7 @@ export default function TaskSchedulePage() {
     <div className="w-full h-fit flex flex-col p-2 pb-10">
       {modalContextHolder}
 
-      <div className="bg-[#6168FF] rounded-4xl p-8 md:p-10 shadow-2xl h-fit min-h-150 text-white">
+      <div className="w-full bg-[#6168FF] rounded-4xl p-4 sm:p-6 md:p-10 shadow-2xl h-fit min-h-150 text-white overflow-hidden">
         <TaskScheduleHeader onCreate={() => showModal()} />
 
         <ConfigProvider

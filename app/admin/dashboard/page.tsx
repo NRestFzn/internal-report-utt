@@ -22,7 +22,7 @@ export default function DashboardPage() {
       <h1 className="text-white text-2xl font-bold mb-6">Dashboard</h1>
       <DashboardStatsGrid stats={stats} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-125 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-125 mb-8">
         <DashboardReportTypeCard chartData={chartData} />
         <DashboardPicCard picList={pics} />
       </div>

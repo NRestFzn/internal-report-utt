@@ -35,7 +35,7 @@ export function AdminLoginForm({
         <Input
           placeholder="Email"
           disabled={isLoading}
-          className="login-input w-md h-11.5! rounded-lg! text-gray-700"
+          className="login-input w-full h-11.5! rounded-lg! text-gray-700"
         />
       </Form.Item>
 
@@ -47,11 +47,11 @@ export function AdminLoginForm({
         <Input.Password
           placeholder="Password"
           disabled={isLoading}
-          className="login-input w-md h-11.5! rounded-lg! text-gray-700"
+          className="login-input w-full h-11.5! rounded-lg! text-gray-700"
         />
       </Form.Item>
 
-      <div className="flex justify-start mb-8 w-md mt-2">
+      <div className="flex justify-start mb-8 w-full mt-2">
         <Link
           href="/forgot-password"
           className="text-[#3B3F6F]/80 text-sm hover:text-[#3B3F6F] hover:underline transition-colors"
@@ -65,7 +65,7 @@ export function AdminLoginForm({
           type="primary"
           htmlType="submit"
           loading={isLoading}
-          className="w-md h-11.5! bg-[#3B3F6F]! hover:bg-[#2d3055]! rounded-lg! font-bold text-lg shadow-lg border-none"
+          className="w-full h-11.5! bg-[#3B3F6F]! hover:bg-[#2d3055]! rounded-lg! font-bold text-lg shadow-lg border-none"
         >
           Sign In
         </Button>

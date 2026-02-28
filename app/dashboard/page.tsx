@@ -25,10 +25,11 @@ export default function UserDashboardPage() {
     <div className="flex flex-col w-full pb-20">
       <div className="relative w-full h-87.5 md:h-112.5">
         <Image
-          src="/dashboard-user-banner.svg"
-          alt="Data Center Infrastructure"
+          src="/dashboard-illustration.svg"
+          alt="Dashboard Summary"
           fill
-          className="object-cover"
+          sizes="30vw"
+          className="object-contain"
           priority
         />
         <div className="absolute inset-0 bg-black/10"></div>
@@ -61,10 +62,11 @@ export default function UserDashboardPage() {
 
               <div className="relative w-full h-62.5 md:h-100 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group cursor-pointer">
                 <Image
-                  src={item.image}
-                  alt={item.title}
+                  src="/history-illustration.svg"
+                  alt="Monitoring"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                  sizes="30vw"
+                  className="object-contain group-hover:scale-105 transition-transform duration-700"
                 />
 
                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

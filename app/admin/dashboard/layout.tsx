@@ -84,7 +84,7 @@ export default function AdminDashboardLayout({
           <Header logoutRedirectUri="/admin/login" />
         </div>
 
-        <main className="flex-1 overflow-y-auto p-8 pt-2 scroll-smooth">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 pt-2 scroll-smooth w-full">
           {children}
         </main>
       </div>

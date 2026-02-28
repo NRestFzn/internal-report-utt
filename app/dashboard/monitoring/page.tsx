@@ -30,7 +30,6 @@ export default function UserMonitoringPage() {
       <Select
         style={{width: 120}}
         className="custom-select-reports"
-        popupClassName="custom-select-dropdown"
         options={yearOptions}
         value={selectedYear}
         onChange={setSelectedYear}
@@ -97,11 +96,15 @@ export default function UserMonitoringPage() {
           </p>
         </div>
 
+        <div className="mb-4 md:hidden">
+          {tabBarExtraContent}
+        </div>
+
         <Tabs
           activeKey={activeQuarter}
           onChange={setActiveQuarter}
           items={items}
-          tabBarExtraContent={tabBarExtraContent}
+          tabBarExtraContent={<div className="hidden md:block">{tabBarExtraContent}</div>}
           className="custom-tabs-reports"
         />
       </div>

@@ -66,7 +66,7 @@ export function getReportColumns(
             <Button
               type="primary"
               onClick={() =>
-                router.push(`/dashboard/monitoring/${record.taskId}`)
+                router.push(`/dashboard/monitoring`)
               }
               className="bg-[#293038]! hover:bg-[#1a1f24]! border-none flex items-center gap-2 px-6 h-9.5 rounded-lg font-semibold shadow-md"
               icon={<FileCheck size={16} />}

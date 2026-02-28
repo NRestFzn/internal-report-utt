@@ -108,6 +108,7 @@ export function MonitoringDetailModal({
                               src={evidence.actionImageUrl}
                               alt="Action"
                               fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
                               className="object-cover"
                             />
                           </a>
@@ -141,6 +142,7 @@ export function MonitoringDetailModal({
                               src={evidence.outcomeImageUrl}
                               alt="Outcome"
                               fill
+                              sizes="(max-width: 768px) 100vw, 50vw"
                               className="object-cover"
                             />
                           </a>

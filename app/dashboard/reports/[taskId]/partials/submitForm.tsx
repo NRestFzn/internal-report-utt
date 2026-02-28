@@ -36,7 +36,7 @@ export function SubmitForm({form, isSubmitting, onFinish}: SubmitFormProps) {
   };
 
   return (
-    <div className="bg-[#A4A9FF] rounded-4xl p-8 md:p-10 shadow-xl relative">
+    <div className="w-full bg-[#A4A9FF] rounded-4xl p-4 sm:p-6 md:p-10 shadow-xl relative overflow-hidden">
       {modalContextHolder}
       <Form
         form={form}

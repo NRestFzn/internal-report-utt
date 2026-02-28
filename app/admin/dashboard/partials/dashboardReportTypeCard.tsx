@@ -13,7 +13,7 @@ export function DashboardReportTypeCard({
   chartData,
 }: DashboardReportTypeCardProps) {
   return (
-    <div className="lg:col-span-2 bg-[#6168FF] rounded-xl p-6 shadow-lg flex flex-col">
+    <div className="lg:col-span-2 bg-[#6168FF] rounded-xl p-6 shadow-lg flex flex-col min-h-80 lg:min-h-0">
       <h2 className="text-white text-lg font-semibold mb-4">
         Total Report Per Type
       </h2>

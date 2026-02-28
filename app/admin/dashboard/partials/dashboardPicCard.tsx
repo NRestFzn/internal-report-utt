@@ -10,7 +10,7 @@ interface DashboardPicCardProps {
 
 export function DashboardPicCard({picList}: DashboardPicCardProps) {
   return (
-    <div className="lg:col-span-1 bg-[#6168FF] rounded-xl p-0 shadow-lg flex flex-col overflow-hidden">
+    <div className="lg:col-span-1 bg-[#6168FF] rounded-xl p-0 shadow-lg flex flex-col overflow-hidden min-h-60 lg:min-h-0">
       <div className="p-6 border-b border-white/10">
         <h2 className="text-white text-lg font-semibold text-center">PIC</h2>
       </div>

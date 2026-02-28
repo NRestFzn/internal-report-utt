@@ -13,7 +13,7 @@
 
   .admin-surface {
     background-color: var(--color-admin-card);
-    @apply rounded-4xl p-8 md:p-10 shadow-2xl h-fit text-white;
+    @apply rounded-4xl p-4 sm:p-6 md:p-10 shadow-2xl h-fit text-white w-full overflow-hidden;
   }
 }
 
@@ -141,6 +141,15 @@
   border: none !important;
 }
 
+.custom-pagination-white {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 .custom-tabs-reports .ant-tabs-tab {
   color: rgba(255, 255, 255, 0.6) !important;
 }
@@ -165,4 +174,67 @@
 
 .custom-select-reports .ant-select-selection-placeholder {
   color: rgba(255, 255, 255, 0.7) !important;
+}
+
+@media (max-width: 768px) {
+  .custom-admin-table .ant-table-thead,
+  .custom-table-v2 .ant-table-thead,
+  .custom-table-reports .ant-table-thead {
+    display: none !important;
+  }
+
+  .custom-admin-table .ant-table-tbody > tr,
+  .custom-table-v2 .ant-table-tbody > tr,
+  .custom-table-reports .ant-table-tbody > tr {
+    display: flex !important;
+    flex-direction: column !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .custom-admin-table .ant-table-tbody > tr > td,
+  .custom-table-v2 .ant-table-tbody > tr > td,
+  .custom-table-reports .ant-table-tbody > tr > td {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 12px 0 !important;
+    width: 100% !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+  }
+  
+  .custom-admin-table .ant-table-tbody > tr > td:last-child,
+  .custom-table-v2 .ant-table-tbody > tr > td:last-child,
+  .custom-table-reports .ant-table-tbody > tr > td:last-child {
+    border-bottom: none !important;
+  }
+  
+  .custom-admin-table .ant-table-tbody > tr.ant-table-placeholder,
+  .custom-table-v2 .ant-table-tbody > tr.ant-table-placeholder,
+  .custom-table-reports .ant-table-tbody > tr.ant-table-placeholder {
+    display: table-row !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .custom-admin-table .ant-table-tbody > tr.ant-table-placeholder > td,
+  .custom-table-v2 .ant-table-tbody > tr.ant-table-placeholder > td,
+  .custom-table-reports .ant-table-tbody > tr.ant-table-placeholder > td {
+    display: table-cell !important;
+    text-align: center !important;
+    border-bottom: none !important;
+  }
+
+  .admin-surface {
+    padding: 1.5rem !important;
+  }
 }

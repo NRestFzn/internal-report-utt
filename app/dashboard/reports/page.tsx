@@ -26,7 +26,6 @@ export default function UserReportsPage() {
         allowClear
         style={{width: 200}}
         className="custom-select-reports"
-        popupClassName="custom-select-dropdown"
         options={categories}
         value={selectedCategory}
         onChange={setSelectedCategory}
@@ -83,7 +82,7 @@ export default function UserReportsPage() {
 
   return (
     <div className="w-full h-fit flex flex-col p-4 md:p-8 pb-20">
-      <div className="bg-[#6168FF] rounded-4xl p-8 md:p-10 shadow-2xl h-fit min-h-150">
+      <div className="w-full bg-[#6168FF] rounded-4xl p-4 sm:p-6 md:p-10 shadow-2xl h-fit min-h-150 overflow-hidden">
         <div className="mb-8">
           <h1 className="text-white text-3xl md:text-4xl font-bold mb-2">
             My Reports Schedule
@@ -93,11 +92,15 @@ export default function UserReportsPage() {
           </p>
         </div>
 
+        <div className="mb-4 md:hidden">
+          {tabBarExtraContent}
+        </div>
+
         <Tabs
           activeKey={activeQuarter}
           onChange={setActiveQuarter}
           items={items}
-          tabBarExtraContent={tabBarExtraContent}
+          tabBarExtraContent={<div className="hidden md:block">{tabBarExtraContent}</div>}
           className="custom-tabs-reports"
         />
       </div>
