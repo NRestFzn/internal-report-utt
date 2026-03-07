@@ -14,67 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
-      categories: {
+      mop_report_files: {
         Row: {
           created_at: string
           description: string | null
-          id: number
-          name: string
-          prefix: string | null
+          file_date: string
+          file_name: string
+          file_url: string
+          id: string
+          report_id: string
+          title: string
         }
         Insert: {
           created_at?: string
           description?: string | null
-          id?: number
-          name: string
-          prefix?: string | null
+          file_date: string
+          file_name: string
+          file_url: string
+          id?: string
+          report_id: string
+          title: string
         }
         Update: {
           created_at?: string
           description?: string | null
-          id?: number
-          name?: string
-          prefix?: string | null
-        }
-        Relationships: []
-      }
-      mops: {
-        Row: {
-          category_id: number | null
-          created_at: string
-          document_number: string
-          file_url: string | null
-          id: number
-          title: string
-          updated_at: string
-          version: string | null
-        }
-        Insert: {
-          category_id?: number | null
-          created_at?: string
-          document_number: string
-          file_url?: string | null
-          id?: number
-          title: string
-          updated_at?: string
-          version?: string | null
-        }
-        Update: {
-          category_id?: number | null
-          created_at?: string
-          document_number?: string
-          file_url?: string | null
-          id?: number
+          file_date?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          report_id?: string
           title?: string
-          updated_at?: string
-          version?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "mops_category_id_fkey"
-            columns: ["category_id"]
+            foreignKeyName: "mop_report_files_report_id_fkey"
+            columns: ["report_id"]
             isOneToOne: false
-            referencedRelation: "categories"
+            referencedRelation: "mop_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mop_reports: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          end_date: string
+          id: string
+          maintenance_name: string
+          maintenance_spec: string
+          revision_note: string | null
+          start_date: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          maintenance_name: string
+          maintenance_spec: string
+          revision_note?: string | null
+          start_date: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          maintenance_name?: string
+          maintenance_spec?: string
+          revision_note?: string | null
+          start_date?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mop_reports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -117,88 +143,6 @@ export type Database = {
           },
         ]
       }
-      report_evidences: {
-        Row: {
-          action_description: string | null
-          action_image_url: string | null
-          action_title: string | null
-          created_at: string
-          id: number
-          outcome_description: string | null
-          outcome_image_url: string | null
-          outcome_title: string | null
-          report_id: number
-        }
-        Insert: {
-          action_description?: string | null
-          action_image_url?: string | null
-          action_title?: string | null
-          created_at?: string
-          id?: number
-          outcome_description?: string | null
-          outcome_image_url?: string | null
-          outcome_title?: string | null
-          report_id: number
-        }
-        Update: {
-          action_description?: string | null
-          action_image_url?: string | null
-          action_title?: string | null
-          created_at?: string
-          id?: number
-          outcome_description?: string | null
-          outcome_image_url?: string | null
-          outcome_title?: string | null
-          report_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "report_evidences_report_id_fkey"
-            columns: ["report_id"]
-            isOneToOne: false
-            referencedRelation: "reports"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      reports: {
-        Row: {
-          created_at: string
-          id: number
-          rejection_notes: string | null
-          status: string | null
-          submitted_at: string | null
-          supervisor_name: string | null
-          task_id: number
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          rejection_notes?: string | null
-          status?: string | null
-          submitted_at?: string | null
-          supervisor_name?: string | null
-          task_id: number
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          rejection_notes?: string | null
-          status?: string | null
-          submitted_at?: string | null
-          supervisor_name?: string | null
-          task_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reports_task_id_fkey"
-            columns: ["task_id"]
-            isOneToOne: true
-            referencedRelation: "tasks"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       roles: {
         Row: {
           description: string | null
@@ -216,51 +160,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      tasks: {
-        Row: {
-          admin_notes: string | null
-          created_at: string
-          id: number
-          mop_id: number
-          pic_id: string
-          scheduled_date: string
-          status: string | null
-        }
-        Insert: {
-          admin_notes?: string | null
-          created_at?: string
-          id?: number
-          mop_id: number
-          pic_id: string
-          scheduled_date: string
-          status?: string | null
-        }
-        Update: {
-          admin_notes?: string | null
-          created_at?: string
-          id?: number
-          mop_id?: number
-          pic_id?: string
-          scheduled_date?: string
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tasks_mop_id_fkey"
-            columns: ["mop_id"]
-            isOneToOne: false
-            referencedRelation: "mops"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_pic_id_fkey"
-            columns: ["pic_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
