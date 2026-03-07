@@ -2,87 +2,162 @@ import {createClient} from '@/lib/supabase/client';
 
 const supabase = createClient();
 
-export interface DashboardStatsData {
-  taskList: number;
-  mopCount: number;
-  totalReport: number;
-  totalPic: number;
+export type DashboardReportStatus =
+  | 'ongoing'
+  | 'pending'
+  | 'approved'
+  | 'rejected';
+
+export interface DashboardStatusSummary {
+  total: number;
+  ongoing: number;
+  pending: number;
+  approved: number;
+  rejected: number;
 }
 
-export interface DashboardChartData {
-  name: string;
-  value: number;
-}
-
-export interface DashboardPicData {
+export interface DashboardPendingItem {
   id: string;
-  name: string;
-  role: string;
+  maintenanceName: string;
+  picName: string;
+  submittedAt: string;
+  serviceReportCount: number;
 }
 
-export async function getDashboardData(): Promise<{
-  stats: DashboardStatsData;
-  chart: DashboardChartData[];
-  pics: DashboardPicData[];
-}> {
+export interface DashboardLatestActivityItem {
+  id: string;
+  maintenanceName: string;
+  picName: string;
+  updatedAt: string;
+  status: DashboardReportStatus;
+}
+
+export interface DashboardData {
+  statusSummary: DashboardStatusSummary;
+  engineerCount: number;
+  serviceReportCount: number;
+  pendingItems: DashboardPendingItem[];
+  latestActivity: DashboardLatestActivityItem[];
+}
+
+function normalizeStatus(status: string | null): DashboardReportStatus {
+  const normalized = status?.trim().toLowerCase();
+
+  if (!normalized) return 'ongoing';
+
+  if (
+    ['pending', 'waiting', 'waiting approval', 'menunggu approval'].includes(
+      normalized,
+    )
+  ) {
+    return 'pending';
+  }
+
+  if (['approved', 'approve'].includes(normalized)) {
+    return 'approved';
+  }
+
+  if (['rejected', 'reject', 'revisi', 'revision'].includes(normalized)) {
+    return 'rejected';
+  }
+
+  return 'ongoing';
+}
+
+export async function getDashboardData(): Promise<DashboardData> {
   const [
-    {count: taskCount, error: taskError},
-    {count: mopCount, error: mopError},
-    {count: reportCount, error: reportError},
-    {data: picRows, error: picRowsError},
+    {data: reportRows, error: reportError},
+    {data: engineerRows, error: engineerRowsError},
+    {count: serviceReportCount, error: serviceReportError},
   ] = await Promise.all([
-    supabase.from('tasks').select('*', {count: 'exact', head: true}),
-    supabase.from('mops').select('*', {count: 'exact', head: true}),
-    supabase.from('reports').select('*', {count: 'exact', head: true}),
+    supabase
+      .from('mop_reports')
+      .select(
+        `
+        id,
+        maintenance_name,
+        status,
+        created_at,
+        updated_at,
+        profiles ( fullname ),
+        mop_report_files ( id )
+      `,
+      )
+      .order('updated_at', {ascending: false}),
     supabase
       .from('profiles')
-      .select('id, fullname, roles!inner(name)')
-      .eq('roles.name', 'user')
-      .order('fullname', {ascending: true}),
+      .select('id, roles!inner(name)')
+      .eq('roles.name', 'user'),
+    supabase.from('mop_report_files').select('*', {count: 'exact', head: true}),
   ]);
-
-  if (taskError) {
-    throw new Error(taskError.message);
-  }
-
-  if (mopError) {
-    throw new Error(mopError.message);
-  }
 
   if (reportError) {
     throw new Error(reportError.message);
   }
 
-  if (picRowsError) {
-    throw new Error(picRowsError.message);
+  if (engineerRowsError) {
+    throw new Error(engineerRowsError.message);
   }
 
-  const pics = (picRows ?? []).map((row) => {
-    const roleRelation = Array.isArray(row.roles) ? row.roles[0] : row.roles;
+  if (serviceReportError) {
+    throw new Error(serviceReportError.message);
+  }
 
+  const reports = (reportRows ?? []).map((report) => {
+    const profileRelation = Array.isArray(report.profiles)
+      ? report.profiles[0]
+      : report.profiles;
     return {
-      id: row.id,
-      name: row.fullname ?? row.id,
-      role: roleRelation?.name ?? 'unassigned',
+      id: report.id,
+      maintenanceName: report.maintenance_name,
+      status: normalizeStatus(report.status),
+      createdAt: report.created_at,
+      updatedAt: report.updated_at,
+      picName: profileRelation?.fullname ?? 'Unknown PIC',
+      serviceReportCount: report.mop_report_files?.length ?? 0,
     };
   });
 
-  const stats = {
-    taskList: taskCount ?? 0,
-    mopCount: mopCount ?? 0,
-    totalReport: reportCount ?? 0,
-    totalPic: pics.length,
+  const statusSummary: DashboardStatusSummary = {
+    total: reports.length,
+    ongoing: 0,
+    pending: 0,
+    approved: 0,
+    rejected: 0,
   };
 
-  const chart = [
-    {name: 'Task List', value: stats.taskList},
-    {name: 'MOP', value: stats.mopCount},
-    {name: 'Total Report', value: stats.totalReport},
-  ];
+  reports.forEach((report) => {
+    statusSummary[report.status] += 1;
+  });
+
+  const pendingItems: DashboardPendingItem[] = reports
+    .filter((report) => report.status === 'pending')
+    .slice(0, 4)
+    .map((report) => ({
+      id: report.id,
+      maintenanceName: report.maintenanceName,
+      picName: report.picName,
+      submittedAt: report.createdAt,
+      serviceReportCount: report.serviceReportCount,
+    }));
+
+  const latestActivity: DashboardLatestActivityItem[] = reports
+    .slice(0, 5)
+    .map((report) => ({
+      id: report.id,
+      maintenanceName: report.maintenanceName,
+      picName: report.picName,
+      updatedAt: report.updatedAt,
+      status: report.status,
+    }));
+
+  const engineerCount = engineerRows?.length ?? 0;
 
   return {
-    stats,
-    chart,
-    pics,
+    statusSummary,
+    engineerCount,
+    serviceReportCount: serviceReportCount ?? 0,
+    pendingItems,
+    latestActivity,
   };
 }

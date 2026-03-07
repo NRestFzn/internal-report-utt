@@ -1,16 +1,13 @@
-import {useState, useEffect, useCallback} from 'react';
+import {useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {useAppNotification} from '@/lib/use-app-notification';
+import {createMopReport} from '../services/createReportService';
 import {
   CreateReportFormData,
   CreateReportFormErrors,
   ReportFileInput,
   ReportFileInputErrors,
-} from '../../../create/types';
-import {
-  getMopReportForEdit,
-  updateMopReport,
-} from '../services/editReportService';
+} from '../types';
 
 const blankReportFile = (): ReportFileInput => ({
   title: '',
@@ -78,52 +75,16 @@ function validate(form: CreateReportFormData) {
   return {errors, fileItemErrors};
 }
 
-export function useEditReport(reportId: string) {
-  const notify = useAppNotification();
+export function useCreateReport() {
   const router = useRouter();
+  const notify = useAppNotification();
 
   const [form, setForm] = useState<CreateReportFormData>(initialForm);
   const [errors, setErrors] = useState<CreateReportFormErrors>({});
   const [fileItemErrors, setFileItemErrors] = useState<ReportFileInputErrors[]>(
     [{}],
   );
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const loadReport = useCallback(async () => {
-    if (!reportId) {
-      notify.error('Invalid URL', 'ID Laporan tidak ditemukan.');
-      router.push('/dashboard/reports');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const data = await getMopReportForEdit(reportId);
-
-      setForm({
-        ...data,
-        reportFiles: data.reportFiles.length
-          ? data.reportFiles
-          : [blankReportFile()],
-      });
-      setFileItemErrors(
-        (data.reportFiles.length ? data.reportFiles : [{}]).map(() => ({})),
-      );
-    } catch (error) {
-      notify.error(
-        'Gagal Memuat Data MOP',
-        error instanceof Error ? error.message : 'Terjadi kesalahan.',
-      );
-      router.push('/dashboard/reports');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [reportId, notify, router]);
-
-  useEffect(() => {
-    loadReport();
-  }, [loadReport]);
 
   const onFieldChange = (
     field: Exclude<keyof CreateReportFormData, 'reportFiles'>,
@@ -139,9 +100,13 @@ export function useEditReport(reportId: string) {
     value: string,
   ) => {
     setForm((prev) => {
-      const next = [...prev.reportFiles];
-      next[index] = {...next[index], [field]: value};
-      return {...prev, reportFiles: next};
+      const nextReportFiles = [...prev.reportFiles];
+      nextReportFiles[index] = {
+        ...nextReportFiles[index],
+        [field]: value,
+      };
+
+      return {...prev, reportFiles: nextReportFiles};
     });
 
     setFileItemErrors((prev) => {
@@ -151,13 +116,17 @@ export function useEditReport(reportId: string) {
     });
   };
 
-  const onReportFileUpload = (index: number, files: FileList | null) => {
-    const file = files?.[0] ?? null;
+  const onReportFileUpload = (index: number, fileList: FileList | null) => {
+    const file = fileList?.[0] ?? null;
 
     setForm((prev) => {
-      const next = [...prev.reportFiles];
-      next[index] = {...next[index], file};
-      return {...prev, reportFiles: next};
+      const nextReportFiles = [...prev.reportFiles];
+      nextReportFiles[index] = {
+        ...nextReportFiles[index],
+        file,
+      };
+
+      return {...prev, reportFiles: nextReportFiles};
     });
 
     setErrors((prev) => ({...prev, reportFiles: undefined}));
@@ -179,14 +148,18 @@ export function useEditReport(reportId: string) {
   const onRemoveReportFile = (index: number) => {
     setForm((prev) => ({
       ...prev,
-      reportFiles: prev.reportFiles.filter((_, i) => i !== index),
+      reportFiles: prev.reportFiles.filter(
+        (_, fileIndex) => fileIndex !== index,
+      ),
     }));
 
-    setFileItemErrors((prev) => prev.filter((_, i) => i !== index));
+    setFileItemErrors((prev) =>
+      prev.filter((_, fileIndex) => fileIndex !== index),
+    );
   };
 
   const onCancel = () => {
-    router.push(`/dashboard/reports/${reportId}`);
+    router.push('/dashboard/reports');
   };
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -207,17 +180,14 @@ export function useEditReport(reportId: string) {
     }
 
     setIsSubmitting(true);
-    try {
-      await updateMopReport(reportId, form);
-      notify.success(
-        'MOP Berhasil Diajukan Ulang',
-        'Perubahan berhasil disimpan dan dikirim ke admin.',
-      );
 
+    try {
+      const reportId = await createMopReport(form);
+      notify.success('MOP Berhasil Dibuat', 'Data MOP berhasil disimpan.');
       router.push(`/dashboard/reports/${reportId}`);
     } catch (error) {
       notify.error(
-        'Gagal Menyimpan Revisi',
+        'Gagal Menyimpan MOP',
         error instanceof Error ? error.message : 'Terjadi kesalahan.',
       );
     } finally {
@@ -229,7 +199,6 @@ export function useEditReport(reportId: string) {
     form,
     errors,
     fileItemErrors,
-    isLoading,
     isSubmitting,
     onFieldChange,
     onReportFileChange,

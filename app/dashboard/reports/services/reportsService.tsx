@@ -1,65 +1,102 @@
 import {createClient} from '@/lib/supabase/client';
-import {CategoryOption, UserTaskData} from '../types';
+import {ReportStatus, ReportsListData} from '../types';
 
 const supabase = createClient();
 
-export async function getUserTasks(): Promise<UserTaskData[]> {
-  const {data: userData, error: userError} = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error('User not authenticated');
+function normalizeStatus(status: string | null): ReportStatus {
+  const normalized = status?.trim().toLowerCase();
+
+  if (!normalized) return 'ongoing';
+
+  if (
+    ['pending', 'waiting', 'waiting approval', 'menunggu approval'].includes(
+      normalized,
+    )
+  ) {
+    return 'pending';
+  }
+
+  if (['approved', 'approve'].includes(normalized)) {
+    return 'approved';
+  }
+
+  if (['rejected', 'reject', 'revisi', 'revision'].includes(normalized)) {
+    return 'rejected';
+  }
+
+  return 'ongoing';
+}
+
+export async function getUserReports(): Promise<ReportsListData> {
+  const {
+    data: {user},
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    throw new Error('User not authenticated');
+  }
 
   const {data, error} = await supabase
-    .from('tasks')
+    .from('mop_reports')
     .select(
       `
       id,
-      scheduled_date,
+      maintenance_name,
+      maintenance_spec,
+      start_date,
+      end_date,
       status,
-      mops (
-        title,
-        document_number,
-        categories (
-          name
-        )
-      )
+      admin_note,
+      revision_note,
+      mop_report_files ( id, file_name, file_date )
     `,
     )
-    .eq('pic_id', userData.user.id)
-    .order('scheduled_date', {ascending: true});
+    .eq('user_id', user.id)
+    .order('start_date', {ascending: false});
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return (data ?? []).map((task) => {
-    const mop = Array.isArray(task.mops) ? task.mops[0] : task.mops;
-    const categoryName = mop?.categories
-      ? Array.isArray(mop.categories)
-        ? mop.categories[0]?.name
-        : (mop.categories as any)?.name
-      : 'Uncategorized';
+  const items = (data ?? []).map((row) => {
+    const files = [...(row.mop_report_files ?? [])].sort((a, b) =>
+      a.file_date.localeCompare(b.file_date),
+    );
+    const mainFileName = files[0]?.file_name ?? '-';
+    const status = normalizeStatus(row.status);
 
     return {
-      key: String(task.id),
-      taskId: task.id,
-      title: mop?.title ?? 'Unknown MOP',
-      docNumber: mop?.document_number ?? '-',
-      category: categoryName ?? '-',
-      scheduledDate: task.scheduled_date,
-      status: task.status,
+      id: row.id,
+      maintenanceName: row.maintenance_name,
+      maintenanceSpec: row.maintenance_spec,
+      startDate: row.start_date,
+      endDate: row.end_date,
+      status,
+      mainFileName,
+      serviceReportCount: files.length,
+      adminNote: row.admin_note,
+      revisionNote: row.revision_note,
     };
   });
-}
 
-export async function getCategoryOptions(): Promise<CategoryOption[]> {
-  const {data, error} = await supabase
-    .from('categories')
-    .select('id, name')
-    .order('name', {ascending: true});
+  const stats = items.reduce(
+    (acc, item) => {
+      acc.total += 1;
+      acc[item.status] += 1;
+      return acc;
+    },
+    {
+      total: 0,
+      ongoing: 0,
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+    },
+  );
 
-  if (error) throw new Error(error.message);
-
-  return (data ?? []).map((cat) => ({
-    value: cat.name,
-    label: cat.name,
-  }));
+  return {
+    stats,
+    items,
+  };
 }

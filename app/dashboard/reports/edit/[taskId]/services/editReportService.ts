@@ -1,150 +1,182 @@
 import {createClient} from '@/lib/supabase/client';
-import {EditReportFormValues, EditReportDetail} from '../types';
+import {TablesInsert, TablesUpdate} from '@/lib/types/supabase';
+import {CreateReportFormData, ReportFileInput} from '../../../create/types';
 
 const supabase = createClient();
+const REPORT_FILES_BUCKET = 'mop-files';
 
-export async function getReportDetail(reportId: string) {
-  const numericReportId = Number(reportId);
-  if (!Number.isInteger(numericReportId) || numericReportId <= 0) {
-    throw new Error('ID report tidak valid');
+function sanitizeFileName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9.\-_]/g, '-')
+    .replace(/-+/g, '-');
+}
+
+async function requireUser() {
+  const {
+    data: {user},
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    throw new Error('User not authenticated');
   }
 
+  return user;
+}
+
+async function uploadNewFile(reportId: string, reportFile: ReportFileInput) {
+  if (!reportFile.file) {
+    return {
+      fileName: reportFile.existingFileName ?? '',
+      fileUrl: reportFile.existingFileUrl ?? '',
+    };
+  }
+
+  const filePath = `${reportId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${sanitizeFileName(reportFile.file.name)}`;
+
+  const {error: uploadError} = await supabase.storage
+    .from(REPORT_FILES_BUCKET)
+    .upload(filePath, reportFile.file, {upsert: false});
+
+  if (uploadError) {
+    const message = uploadError.message.toLowerCase();
+    if (message.includes('bucket')) {
+      throw new Error(
+        `Storage bucket '${REPORT_FILES_BUCKET}' belum tersedia. Buat bucket tersebut di Supabase Storage.`,
+      );
+    }
+
+    throw new Error(
+      `Gagal upload file '${reportFile.file.name}': ${uploadError.message}`,
+    );
+  }
+
+  const {data: publicData} = supabase.storage
+    .from(REPORT_FILES_BUCKET)
+    .getPublicUrl(filePath);
+
+  return {
+    fileName: reportFile.file.name,
+    fileUrl: publicData.publicUrl,
+  };
+}
+
+export async function getMopReportForEdit(
+  reportId: string,
+): Promise<CreateReportFormData> {
+  const user = await requireUser();
+
   const {data, error} = await supabase
-    .from('reports')
+    .from('mop_reports')
     .select(
       `
       id,
-      task_id,
-      supervisor_name,
-      rejection_notes,
-      tasks (
-        scheduled_date,
-        mops ( title, document_number, categories (name) ),
-        profiles (fullname)
-      ),
-      report_evidences (
-        id, action_title, action_image_url, action_description,
-        outcome_title, outcome_image_url, outcome_description
+      maintenance_name,
+      maintenance_spec,
+      start_date,
+      end_date,
+      mop_report_files (
+        id,
+        title,
+        description,
+        file_date,
+        file_name,
+        file_url
       )
     `,
     )
-    .eq('id', numericReportId)
-    .single();
+    .eq('id', reportId)
+    .eq('user_id', user.id)
+    .maybeSingle();
 
-  if (error || !data) throw new Error(error?.message || 'Report not found');
-
-  const task = Array.isArray(data.tasks) ? data.tasks[0] : data.tasks;
-  const mop = Array.isArray(task?.mops) ? task?.mops[0] : task?.mops;
-  const categoryName = mop?.categories
-    ? Array.isArray(mop.categories)
-      ? mop.categories[0]?.name
-      : mop.categories?.name
-    : 'Uncategorized';
-  const profile = Array.isArray(task?.profiles)
-    ? task?.profiles[0]
-    : task?.profiles;
-
-  const reportDetail: EditReportDetail = {
-    id: data.task_id,
-    reportId: data.id,
-    mopTitle: mop?.title ?? 'Unknown MOP',
-    docNumber: mop?.document_number ?? '-',
-    category: categoryName ?? '-',
-    scheduledDate: task?.scheduled_date,
-    picName: profile?.fullname ?? '-',
-    rejectionNotes: data.rejection_notes ?? undefined,
-  };
-
-  return {
-    reportDetail,
-    supervisorName: data.supervisor_name,
-    evidences: data.report_evidences,
-  };
-}
-
-async function uploadEvidenceFile(
-  fileObj: any,
-  reportId: number,
-  prefix: string,
-): Promise<string> {
-  if (fileObj?.url) return fileObj.url;
-
-  if (!fileObj || !fileObj.originFileObj) return '';
-
-  const file = fileObj.originFileObj;
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${reportId}-${prefix}-revisi-${Math.random().toString(36).substring(2)}.${fileExt}`;
-
-  const {error: uploadError} = await supabase.storage
-    .from('evidences')
-    .upload(fileName, file);
-
-  if (uploadError)
-    throw new Error(`Gagal upload gambar ${prefix}: ${uploadError.message}`);
-
-  const {data: publicUrlData} = supabase.storage
-    .from('evidences')
-    .getPublicUrl(fileName);
-
-  return publicUrlData.publicUrl;
-}
-
-export async function updateReportToDB(
-  reportId: string,
-  values: EditReportFormValues,
-) {
-  const numericReportId = Number(reportId);
-  if (!Number.isInteger(numericReportId) || numericReportId <= 0) {
-    throw new Error('ID report tidak valid');
+  if (error) {
+    throw new Error(error.message);
   }
 
+  if (!data) {
+    throw new Error('MOP report tidak ditemukan.');
+  }
+
+  const reportFiles = (data.mop_report_files ?? []).map((file) => ({
+    title: file.title,
+    description: file.description ?? '',
+    fileDate: file.file_date,
+    file: null,
+    existingFileName: file.file_name,
+    existingFileUrl: file.file_url,
+  }));
+
+  return {
+    maintenanceName: data.maintenance_name,
+    maintenanceSpec: data.maintenance_spec,
+    startDate: data.start_date,
+    endDate: data.end_date,
+    reportFiles,
+  };
+}
+
+export async function updateMopReport(
+  reportId: string,
+  payload: CreateReportFormData,
+) {
+  const user = await requireUser();
+
+  const reportPayload: TablesUpdate<'mop_reports'> = {
+    maintenance_name: payload.maintenanceName.trim(),
+    maintenance_spec: payload.maintenanceSpec.trim(),
+    start_date: payload.startDate,
+    end_date: payload.endDate,
+    status: 'pending',
+  };
+
   const {error: reportError} = await supabase
-    .from('reports')
-    .update({
-      supervisor_name: values.supervisorName,
-      status: 'Pending',
-    })
-    .eq('id', numericReportId);
+    .from('mop_reports')
+    .update(reportPayload)
+    .eq('id', reportId)
+    .eq('user_id', user.id);
 
-  if (reportError)
-    throw new Error(`Gagal update report: ${reportError.message}`);
+  if (reportError) {
+    throw new Error(reportError.message);
+  }
 
-  const evidencePromises = values.evidences.map(async (item) => {
-    const [actionImageUrl, outcomeImageUrl] = await Promise.all([
-      item.actionFileList?.length
-        ? uploadEvidenceFile(item.actionFileList[0], numericReportId, 'action')
-        : Promise.resolve(''),
-      item.outcomeFileList?.length
-        ? uploadEvidenceFile(
-            item.outcomeFileList[0],
-            numericReportId,
-            'outcome',
-          )
-        : Promise.resolve(''),
-    ]);
+  const rows: TablesInsert<'mop_report_files'>[] = [];
 
-    return {
-      report_id: numericReportId,
-      action_title: item.actionTitle,
-      action_image_url: actionImageUrl,
-      action_description: item.actionDesc,
-      outcome_title: item.outcomeTitle,
-      outcome_image_url: outcomeImageUrl,
-      outcome_description: item.outcomeDesc,
-    };
-  });
+  for (const reportFile of payload.reportFiles) {
+    const {fileName, fileUrl} = await uploadNewFile(reportId, reportFile);
 
-  const newEvidences = await Promise.all(evidencePromises);
+    if (!fileUrl || !fileName) {
+      continue;
+    }
 
-  await supabase
-    .from('report_evidences')
+    rows.push({
+      report_id: reportId,
+      title: reportFile.title.trim(),
+      description: reportFile.description.trim() || null,
+      file_date: reportFile.fileDate,
+      file_name: fileName,
+      file_url: fileUrl,
+    });
+  }
+
+  if (!rows.length) {
+    throw new Error('Tidak ada file report yang berhasil diproses.');
+  }
+
+  const {error: deleteError} = await supabase
+    .from('mop_report_files')
     .delete()
-    .eq('report_id', numericReportId);
+    .eq('report_id', reportId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
 
   const {error: insertError} = await supabase
-    .from('report_evidences')
-    .insert(newEvidences);
+    .from('mop_report_files')
+    .insert(rows);
 
-  if (insertError)
-    throw new Error(`Gagal update data evidence: ${insertError.message}`);
+  if (insertError) {
+    throw new Error(insertError.message);
+  }
 }

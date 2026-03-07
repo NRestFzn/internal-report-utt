@@ -1,35 +1,34 @@
 'use client';
 
 import {Spin} from 'antd';
-import {ArrowLeft} from 'lucide-react';
-import {useRouter} from 'next/navigation';
+import Link from 'next/link';
+import {ChevronLeft} from 'lucide-react';
 import {useProfile} from './hooks/useProfile';
 import {ProfileForm} from './partials/profileForm';
 
 export default function ProfilePage() {
-  const router = useRouter();
   const {form, profile, isLoading, isSubmitting, onFinish} = useProfile();
 
   return (
-    <div className="w-full min-h-screen bg-brand-gradient flex flex-col p-4 md:p-8 pb-20">
-      <div className="w-full max-w-4xl mx-auto">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-white/80 hover:text-white mb-6 w-fit transition-colors cursor-pointer"
-        >
-          <ArrowLeft size={20} />
-          <span className="font-semibold text-lg">Back</span>
-        </button>
+    <div className="mx-auto w-full max-w-210 pb-7 md:pb-10">
+      <Link
+        href="/dashboard"
+        className="mb-3 inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/15 hover:text-white"
+      >
+        <ChevronLeft size={15} />
+        Kembali ke Dashboard
+      </Link>
 
-        <div className="mb-8">
-          <h1 className="text-white text-3xl md:text-4xl font-bold mb-2">
-            My Profile
-          </h1>
-          <p className="text-white/70 text-lg">
-            Manage your personal information and security settings
-          </p>
-        </div>
+      <section className="rounded-[22px] bg-linear-to-r from-[#7075C1] via-[#4958F4] to-[#0B0BEF] p-4 text-white shadow-[0px_16px_35px_-18px_#090D2B] md:p-6">
+        <h1 className="font-inter text-4xl leading-tight font-extrabold md:text-5xl">
+          Settings
+        </h1>
+        <p className="mt-1 text-sm text-white/75 md:text-base">
+          Kelola informasi akun dan keamanan Anda
+        </p>
+      </section>
 
+      <div className="mt-4 md:mt-5">
         <Spin
           spinning={isLoading}
           size="large"

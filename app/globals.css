@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: var(--font-manrope);
+  --font-inter: var(--font-inter), 'Inter', sans-serif;
   --font-micro5: var(--font-micro-5), 'Micro 5', sans-serif;
   --color-primary-dark: #3b3f6f;
   --color-brand-blue: #000bff;

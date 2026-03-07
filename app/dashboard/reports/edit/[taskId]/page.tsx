@@ -2,12 +2,10 @@
 
 import {use} from 'react';
 import {Spin} from 'antd';
-import {ArrowLeft} from 'lucide-react';
-import {useRouter} from 'next/navigation';
+import Link from 'next/link';
+import {ChevronLeft} from 'lucide-react';
 import {useEditReport} from './hooks/useEditReport';
-
-import {EditReportForm} from './partials/editReportForm';
-import {EditReportInfoCard} from './partials/editReportInfoCard';
+import {CreateReportForm} from '../../create/partials/createReportForm';
 
 export default function EditReportPage({
   params,
@@ -15,36 +13,53 @@ export default function EditReportPage({
   params: Promise<{taskId: string}>;
 }) {
   const unwrappedParams = use(params);
-  const router = useRouter();
   const reportId = unwrappedParams.taskId;
-  const {form, reportDetail, isLoading, isSubmitting, onFinish} =
-    useEditReport(reportId);
+  const editReportState = useEditReport(reportId);
 
-  if (isLoading) {
+  if (editReportState.isLoading) {
     return (
-      <div className="w-full h-150 flex items-center justify-center">
+      <div className="flex h-150 w-full items-center justify-center">
         <Spin size="large" />
       </div>
     );
   }
 
   return (
-    <div className="w-full h-fit flex flex-col p-4 md:p-8 pb-20 max-w-6xl mx-auto">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-white/80 hover:text-white mb-6 w-fit transition-colors"
-      >
-        <ArrowLeft size={20} />
-        <span className="font-semibold">Back to History</span>
-      </button>
+    <div className="min-h-full w-full px-3 pt-2 pb-8 md:px-6 md:pt-3 md:pb-10">
+      <div className="mx-auto w-full max-w-180">
+        <header className="mb-3 md:mb-5">
+          <Link
+            href={`/dashboard/reports/${reportId}`}
+            className="inline-flex items-center gap-1 text-xs text-white! visited:text-white! transition-colors hover:text-white/90! md:text-sm"
+          >
+            <ChevronLeft size={16} />
+            Kembali ke Detail MOP
+          </Link>
 
-      <EditReportInfoCard reportDetail={reportDetail} />
+          <h1 className="mt-1.5 font-inter text-3xl leading-tight font-extrabold text-white md:text-4xl">
+            Revisi Service Report
+          </h1>
+          <p className="mt-1.5 max-w-95 text-sm text-white/75 md:max-w-120 md:text-base">
+            Perbarui data MOP lalu ajukan ulang ke admin
+          </p>
+        </header>
 
-      <EditReportForm
-        form={form}
-        isSubmitting={isSubmitting}
-        onFinish={onFinish}
-      />
+        <CreateReportForm
+          state={{
+            form: editReportState.form,
+            errors: editReportState.errors,
+            fileItemErrors: editReportState.fileItemErrors,
+            isSubmitting: editReportState.isSubmitting,
+            onFieldChange: editReportState.onFieldChange,
+            onReportFileChange: editReportState.onReportFileChange,
+            onReportFileUpload: editReportState.onReportFileUpload,
+            onAddReportFile: editReportState.onAddReportFile,
+            onRemoveReportFile: editReportState.onRemoveReportFile,
+            onSubmit: editReportState.onSubmit,
+            onCancel: editReportState.onCancel,
+          }}
+        />
+      </div>
     </div>
   );
 }

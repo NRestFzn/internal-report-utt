@@ -1,23 +1,15 @@
-export type ReportStatus = 'Pending' | 'Approved' | 'Revisi';
-
-export interface EvidenceData {
-  id: number;
-  actionTitle: string | null;
-  actionImageUrl: string | null;
-  actionDesc: string | null;
-  outcomeTitle: string | null;
-  outcomeImageUrl: string | null;
-  outcomeDesc: string | null;
-}
+export type ReportStatus = 'ongoing' | 'pending' | 'approved' | 'rejected';
 
 export interface ReportData {
-  key: string;
-  id: number;
-  reportId?: number;
-  taskName: string;
+  id: string;
+  maintenanceName: string;
   picName: string;
+  mainFileName: string;
+  startDate: string;
+  endDate: string;
   submittedDate: string;
   status: ReportStatus;
-  notes?: string;
-  evidences?: EvidenceData[];
+  serviceReportCount: number;
+  adminNote: string | null;
+  revisionNote: string | null;
 }
