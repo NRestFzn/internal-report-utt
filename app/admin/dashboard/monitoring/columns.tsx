@@ -4,8 +4,8 @@ import {CheckSquare, XSquare, Eye, Printer} from 'lucide-react';
 import {ReportData} from './types';
 
 export function getMonitoringColumns(
-  handleApprove: (reportId: number) => void,
-  openRevisiModal: (reportId: number) => void,
+  handleApprove: (reportId: string) => void,
+  openRevisiModal: (reportId: string) => void,
   showDetail: (report: ReportData) => void,
   handlePrint: (report: ReportData) => void,
 ): ColumnsType<ReportData> {
@@ -20,7 +20,7 @@ export function getMonitoringColumns(
     },
     {
       title: 'Task Name',
-      dataIndex: 'taskName',
+      dataIndex: 'maintenanceName',
       render: (text) => (
         <span className="text-white font-medium text-base line-clamp-1 max-w-50">
           {text}
@@ -37,8 +37,8 @@ export function getMonitoringColumns(
       dataIndex: 'status',
       render: (status) => {
         let colorClass = 'bg-white/20 text-white';
-        if (status === 'Approved') colorClass = '!bg-[#FFE58F] !text-[#876800]';
-        if (status === 'Revisi') colorClass = '!bg-[#FFBB96] !text-[#871400]';
+        if (status === 'approved') colorClass = '!bg-[#FFE58F] !text-[#876800]';
+        if (status === 'rejected') colorClass = '!bg-[#FFBB96] !text-[#871400]';
 
         return (
           <div
@@ -70,7 +70,7 @@ export function getMonitoringColumns(
       render: (_, record) => (
         <Space size="small">
           <Button
-            onClick={() => handleApprove(record.reportId!)}
+            onClick={() => handleApprove(record.id)}
             className="bg-white/20! border-none text-white! hover:bg-white/30! shadow-sm"
           >
             <CheckSquare size={14} />
@@ -78,7 +78,7 @@ export function getMonitoringColumns(
           </Button>
           <Button
             danger
-            onClick={() => openRevisiModal(record.reportId!)}
+            onClick={() => openRevisiModal(record.id)}
             className="border-none shadow-sm bg-white/10"
           >
             <XSquare size={14} />

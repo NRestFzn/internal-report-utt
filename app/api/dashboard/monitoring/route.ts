@@ -2,6 +2,30 @@ import {NextResponse} from 'next/server';
 import {createAdminClient} from '@/lib/supabase/admin';
 import {createClient} from '@/lib/supabase/server';
 
+function normalizeStatus(status: string | null) {
+  const normalized = status?.trim().toLowerCase();
+
+  if (!normalized) return 'ongoing';
+
+  if (
+    ['pending', 'waiting', 'waiting approval', 'menunggu approval'].includes(
+      normalized,
+    )
+  ) {
+    return 'pending';
+  }
+
+  if (['approved', 'approve'].includes(normalized)) {
+    return 'approved';
+  }
+
+  if (['rejected', 'reject', 'revisi', 'revision'].includes(normalized)) {
+    return 'rejected';
+  }
+
+  return 'ongoing';
+}
+
 export async function GET() {
   try {
     const authClient = await createClient();
@@ -16,62 +40,50 @@ export async function GET() {
 
     const supabase = createAdminClient();
 
-    const {data: tasksData, error: taskError} = await supabase
-      .from('tasks')
-      .select(
-        `
-        id,
-        mops ( title )
-      `,
-      )
-      .eq('pic_id', user.id);
-
-    if (taskError) {
-      return NextResponse.json({error: taskError.message}, {status: 400});
-    }
-
-    const taskIds = (tasksData ?? []).map((task) => task.id);
-    if (taskIds.length === 0) {
-      return NextResponse.json({data: []});
-    }
-
-    const taskNameById = new Map<number, string>(
-      (tasksData ?? []).map((task) => {
-        const mop = Array.isArray(task.mops) ? task.mops[0] : task.mops;
-        return [task.id, mop?.title ?? 'Unknown Task'];
-      }),
-    );
-
     const {data: reportsData, error: reportError} = await supabase
-      .from('reports')
+      .from('mop_reports')
       .select(
         `
         id,
-        task_id,
-        submitted_at,
+        maintenance_name,
+        created_at,
         status,
-        rejection_notes,
-        report_evidences (
+        admin_note,
+        revision_note,
+        mop_report_files (
           id,
-          action_title,
-          action_image_url,
-          action_description,
-          outcome_title,
-          outcome_image_url,
-          outcome_description
+          title,
+          description,
+          file_name,
+          file_url
         )
       `,
       )
-      .in('task_id', taskIds)
-      .order('submitted_at', {ascending: false});
+      .eq('user_id', user.id)
+      .order('created_at', {ascending: false});
 
     if (reportError) {
       return NextResponse.json({error: reportError.message}, {status: 400});
     }
 
     const responseData = (reportsData ?? []).map((report) => ({
-      ...report,
-      task_name: taskNameById.get(report.task_id) ?? 'Unknown Task',
+      id: report.id,
+      task_id: report.id,
+      task_name: report.maintenance_name,
+      submitted_at: report.created_at,
+      status: normalizeStatus(report.status),
+      admin_note: report.admin_note,
+      rejection_notes: report.revision_note,
+      report_evidences: (report.mop_report_files ?? []).map((file) => ({
+        id: file.id,
+        action_title: file.title,
+        action_image_url: file.file_url,
+        action_description: file.description,
+        outcome_title: file.title,
+        outcome_image_url: file.file_url,
+        outcome_description: file.description,
+        file_name: file.file_name,
+      })),
     }));
 
     return NextResponse.json({data: responseData});
