@@ -93,14 +93,18 @@ export async function POST(request: Request) {
         .eq('name', 'user')
         .maybeSingle();
 
+      const metadata = user.user_metadata;
+      const fullNameFromMetadata =
+        typeof metadata?.full_name === 'string'
+          ? metadata.full_name
+          : typeof metadata?.name === 'string'
+            ? metadata.name
+            : null;
+
       const {error: insertError} = await adminClient.from('profiles').insert({
         id: user.id,
         email: user.email || null,
-        fullname:
-          user.user_metadata?.full_name ||
-          user.user_metadata?.name ||
-          user.email ||
-          null,
+        fullname: fullNameFromMetadata || user.email || null,
         role_id: userRole?.id ?? null,
       });
 

@@ -1,7 +1,7 @@
 'use client';
 
 import {Spin} from 'antd';
-import {useRouter, useSearchParams} from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import {useEffect, useRef, useState} from 'react';
 import {createClient} from '@/lib/supabase/client';
 
@@ -25,7 +25,6 @@ function withAuthError(path: string, reason: string, detail?: string) {
 
 export default function AuthSyncPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const hasHandled = useRef(false);
   const [statusText, setStatusText] = useState('Menyinkronkan sesi Google...');
 
@@ -37,8 +36,8 @@ export default function AuthSyncPage() {
     hasHandled.current = true;
 
     const syncAuth = async () => {
-      const roleIntent =
-        (searchParams.get('role') as RoleIntent | null) || 'user';
+      const params = new URLSearchParams(window.location.search);
+      const roleIntent = (params.get('role') as RoleIntent | null) || 'user';
       const loginPath = roleIntent === 'admin' ? '/admin/login' : '/login';
 
       const supabase = createClient();
@@ -121,7 +120,7 @@ export default function AuthSyncPage() {
     };
 
     void syncAuth();
-  }, [router, searchParams]);
+  }, [router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-login-right px-6">

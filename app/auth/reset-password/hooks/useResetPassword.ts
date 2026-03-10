@@ -1,15 +1,19 @@
-import {useRouter, useSearchParams} from 'next/navigation';
-import {useMemo, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {useEffect, useState} from 'react';
 import {resetPasswordWithKey} from '../services/resetPasswordService';
 import {ResetPasswordFormValues} from '../types';
 
 export function useResetPassword() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const key = useMemo(() => searchParams.get('key') || '', [searchParams]);
+  const [key, setKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setKey(params.get('key') || '');
+  }, []);
 
   const onSubmit = async (values: ResetPasswordFormValues) => {
     if (!key) {

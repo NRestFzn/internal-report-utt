@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {useRouter, useSearchParams} from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import {useEffect, useRef} from 'react';
 import {useAppNotification} from '@/lib/use-app-notification';
 import {useAdminLogin} from './hooks/useAdminLogin';
@@ -30,7 +30,6 @@ function getAdminLoginErrorMessage(code: string, detail: string | null) {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const shownRef = useRef(false);
   const notify = useAppNotification();
 
@@ -51,8 +50,9 @@ export default function AdminLoginPage() {
       return;
     }
 
-    const authError = searchParams.get('authError');
-    const authMessage = searchParams.get('authMessage');
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get('authError');
+    const authMessage = params.get('authMessage');
 
     if (!authError) {
       return;
@@ -64,7 +64,7 @@ export default function AdminLoginPage() {
       getAdminLoginErrorMessage(authError, authMessage),
     );
     router.replace('/admin/login');
-  }, [notify, router, searchParams]);
+  }, [notify, router]);
 
   return (
     <div className="min-h-screen w-full overflow-hidden">

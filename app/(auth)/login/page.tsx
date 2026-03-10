@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import {useRouter, useSearchParams} from 'next/navigation';
+import {useRouter} from 'next/navigation';
 import {useEffect, useRef} from 'react';
 import {useAppNotification} from '@/lib/use-app-notification';
 import {useLogin} from './hooks/useLogin';
@@ -30,7 +30,6 @@ function getLoginErrorMessage(code: string, detail: string | null) {
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const shownRef = useRef(false);
   const notify = useAppNotification();
 
@@ -51,8 +50,9 @@ export default function LoginPage() {
       return;
     }
 
-    const authError = searchParams.get('authError');
-    const authMessage = searchParams.get('authMessage');
+    const params = new URLSearchParams(window.location.search);
+    const authError = params.get('authError');
+    const authMessage = params.get('authMessage');
 
     if (!authError) {
       return;
@@ -64,7 +64,7 @@ export default function LoginPage() {
       getLoginErrorMessage(authError, authMessage),
     );
     router.replace('/login');
-  }, [notify, router, searchParams]);
+  }, [notify, router]);
 
   return (
     <div className="min-h-screen w-full overflow-hidden">
