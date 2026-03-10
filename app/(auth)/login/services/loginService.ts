@@ -3,6 +3,10 @@ import {LoginSchema} from '../types';
 
 const supabase = createClient();
 
+interface ApiMessageResponse {
+  message?: string;
+}
+
 export async function loginUser(values: LoginSchema) {
   const {data: authData, error: authError} =
     await supabase.auth.signInWithPassword({
@@ -27,9 +31,10 @@ export async function loginUser(values: LoginSchema) {
     throw new Error('Failed to get user profile.');
   }
 
-  const roleName = Array.isArray(profile?.roles)
-    ? profile?.roles[0]?.name
-    : (profile?.roles as any)?.name;
+  const roleRelation = Array.isArray(profile?.roles)
+    ? profile.roles[0]
+    : profile?.roles;
+  const roleName = roleRelation?.name?.toLowerCase() ?? null;
 
   if (roleName === 'admin') {
     await supabase.auth.signOut();
@@ -37,4 +42,40 @@ export async function loginUser(values: LoginSchema) {
   }
 
   return {user, role: roleName};
+}
+
+export async function loginWithGoogleAsUser() {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_APP_URL || window.location.origin;
+
+  const {error} = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${baseUrl}/auth/callback?role=user`,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function requestForgotPassword(email: string) {
+  const response = await fetch('/api/auth/forgot-password', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({email}),
+  });
+
+  const payload = (await response
+    .json()
+    .catch(() => null)) as ApiMessageResponse | null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || 'Failed to send reset instructions.');
+  }
+
+  return payload;
 }

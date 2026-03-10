@@ -1,11 +1,70 @@
 'use client';
 
 import Image from 'next/image';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {useEffect, useRef} from 'react';
+import {useAppNotification} from '@/lib/use-app-notification';
 import {useLogin} from './hooks/useLogin';
 import {LoginForm} from './partials/loginForm';
 
+function getLoginErrorMessage(code: string, detail: string | null) {
+  if (detail) {
+    return detail;
+  }
+
+  switch (code) {
+    case 'missing_code':
+      return 'Google login gagal: kode otorisasi tidak ditemukan.';
+    case 'exchange_failed':
+      return 'Google login gagal saat menukar kode sesi.';
+    case 'session_not_found':
+      return 'Google login gagal: sesi tidak terbentuk.';
+    case 'sync_failed':
+      return 'Google login gagal saat sinkronisasi profil.';
+    case 'user_only':
+      return 'Akun admin tidak dapat login dari portal user.';
+    default:
+      return 'Google login gagal. Silakan coba lagi.';
+  }
+}
+
 export default function LoginPage() {
-  const {form, isLoading, onFinish} = useLogin();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const shownRef = useRef(false);
+  const notify = useAppNotification();
+
+  const {
+    form,
+    isLoading,
+    onFinish,
+    onGoogleLogin,
+    isForgotPasswordModalOpen,
+    isForgotPasswordLoading,
+    openForgotPasswordModal,
+    closeForgotPasswordModal,
+    onForgotPasswordSubmit,
+  } = useLogin();
+
+  useEffect(() => {
+    if (shownRef.current) {
+      return;
+    }
+
+    const authError = searchParams.get('authError');
+    const authMessage = searchParams.get('authMessage');
+
+    if (!authError) {
+      return;
+    }
+
+    shownRef.current = true;
+    notify.error(
+      'Google Login Failed',
+      getLoginErrorMessage(authError, authMessage),
+    );
+    router.replace('/login');
+  }, [notify, router, searchParams]);
 
   return (
     <div className="min-h-screen w-full overflow-hidden">
@@ -54,6 +113,12 @@ export default function LoginPage() {
               form={form}
               isLoading={isLoading}
               onSubmit={onFinish}
+              onGoogleLogin={onGoogleLogin}
+              forgotPasswordModalOpen={isForgotPasswordModalOpen}
+              forgotPasswordLoading={isForgotPasswordLoading}
+              onForgotPasswordOpen={openForgotPasswordModal}
+              onForgotPasswordCancel={closeForgotPasswordModal}
+              onForgotPasswordSubmit={onForgotPasswordSubmit}
               isMobile
               formName="user_login_form_mobile"
             />
@@ -177,6 +242,12 @@ export default function LoginPage() {
               form={form}
               isLoading={isLoading}
               onSubmit={onFinish}
+              onGoogleLogin={onGoogleLogin}
+              forgotPasswordModalOpen={isForgotPasswordModalOpen}
+              forgotPasswordLoading={isForgotPasswordLoading}
+              onForgotPasswordOpen={openForgotPasswordModal}
+              onForgotPasswordCancel={closeForgotPasswordModal}
+              onForgotPasswordSubmit={onForgotPasswordSubmit}
               formName="user_login_form_desktop"
             />
           </div>

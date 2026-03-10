@@ -2,12 +2,19 @@ import {Form, Input, Button} from 'antd';
 import {FormInstance} from 'antd/es/form';
 import Link from 'next/link';
 import {GoogleAuthButton} from '@/components/googleAuthButton';
+import {ForgotPasswordModal} from '@/components/forgotPasswordModal';
 import {LoginSchema} from '../types';
 
 interface AdminLoginFormProps {
   form: FormInstance<LoginSchema>;
   isLoading: boolean;
   onSubmit: (values: LoginSchema) => void;
+  onGoogleLogin: () => void;
+  forgotPasswordModalOpen: boolean;
+  forgotPasswordLoading: boolean;
+  onForgotPasswordOpen: () => void;
+  onForgotPasswordCancel: () => void;
+  onForgotPasswordSubmit: (email: string) => Promise<void>;
   isMobile?: boolean;
   formName?: string;
 }
@@ -16,6 +23,12 @@ export function AdminLoginForm({
   form,
   isLoading,
   onSubmit,
+  onGoogleLogin,
+  forgotPasswordModalOpen,
+  forgotPasswordLoading,
+  onForgotPasswordOpen,
+  onForgotPasswordCancel,
+  onForgotPasswordSubmit,
   isMobile = false,
   formName = 'admin_login_form',
 }: AdminLoginFormProps) {
@@ -24,7 +37,6 @@ export function AdminLoginForm({
       className="relative z-10 mx-auto w-full max-w-105"
       style={{fontFamily: 'var(--font-inter), sans-serif'}}
     >
-      {/* Header Text (Sesuai Image) */}
       <div className="mb-8 text-left">
         <h2
           className={`mb-1 text-[26px] font-extrabold leading-9.75 tracking-[0] ${
@@ -103,18 +115,18 @@ export function AdminLoginForm({
           />
         </Form.Item>
 
-        <div className="flex justify-end mb-8 w-full mt-2">
-          <a
-            href="#"
+        <div className="mt-2 mb-8 flex w-full justify-end">
+          <button
+            type="button"
+            onClick={onForgotPasswordOpen}
             className={`text-[15px] font-bold transition-all hover:underline ${
               isMobile
                 ? 'text-white/80 hover:text-white'
                 : 'text-[#6168FF] hover:text-[#4b51d1]'
             }`}
-            onClick={(e) => e.preventDefault()}
           >
             Lupa Password?
-          </a>
+          </button>
         </div>
 
         <Form.Item className="mb-6">
@@ -132,7 +144,6 @@ export function AdminLoginForm({
           </Button>
         </Form.Item>
 
-        {/* Divider */}
         <div className="flex items-center gap-4 mb-6">
           <div
             className={`h-px flex-1 ${isMobile ? 'bg-white/25' : 'bg-[#E2E8F0]'}`}
@@ -149,16 +160,12 @@ export function AdminLoginForm({
           ></div>
         </div>
 
-        {/* Login with Google Button */}
         <GoogleAuthButton
           isLoading={isLoading}
           isMobile={isMobile}
-          onClick={() => {
-            console.log('Login with Google clicked');
-          }}
+          onClick={onGoogleLogin}
         />
 
-        {/* Register Link */}
         <div
           className={`mt-8 text-center text-[15px] font-normal ${
             isMobile ? 'text-white/65' : 'text-[#94A3B8]'
@@ -175,6 +182,13 @@ export function AdminLoginForm({
           </Link>
         </div>
       </Form>
+
+      <ForgotPasswordModal
+        open={forgotPasswordModalOpen}
+        isLoading={forgotPasswordLoading}
+        onCancel={onForgotPasswordCancel}
+        onSubmit={onForgotPasswordSubmit}
+      />
     </div>
   );
 }

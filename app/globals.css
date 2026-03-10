@@ -189,6 +189,12 @@
   border: none !important;
 }
 
+.forgot-password-modal .ant-modal-content {
+  padding: 26px 24px 22px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 35px 80px rgba(15, 23, 42, 0.32) !important;
+}
+
 .upload-wrapper .ant-upload-drag {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 2px dashed rgba(255, 255, 255, 0.4) !important;

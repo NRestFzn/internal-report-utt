@@ -2,12 +2,19 @@ import {Form, Input, Button} from 'antd';
 import {FormInstance} from 'antd/es/form';
 import Link from 'next/link';
 import {GoogleAuthButton} from '@/components/googleAuthButton';
+import {ForgotPasswordModal} from '@/components/forgotPasswordModal';
 import {LoginSchema} from '../types';
 
 interface LoginFormProps {
   form: FormInstance<LoginSchema>;
   isLoading: boolean;
   onSubmit: (values: LoginSchema) => void;
+  onGoogleLogin: () => void;
+  forgotPasswordModalOpen: boolean;
+  forgotPasswordLoading: boolean;
+  onForgotPasswordOpen: () => void;
+  onForgotPasswordCancel: () => void;
+  onForgotPasswordSubmit: (email: string) => Promise<void>;
   isMobile?: boolean;
   formName?: string;
 }
@@ -16,6 +23,12 @@ export function LoginForm({
   form,
   isLoading,
   onSubmit,
+  onGoogleLogin,
+  forgotPasswordModalOpen,
+  forgotPasswordLoading,
+  onForgotPasswordOpen,
+  onForgotPasswordCancel,
+  onForgotPasswordSubmit,
   isMobile = false,
   formName = 'user_login_form',
 }: LoginFormProps) {
@@ -102,9 +115,10 @@ export function LoginForm({
           />
         </Form.Item>
 
-        <div className="flex justify-end mb-8 w-full mt-2">
-          <Link
-            href="/forgot-password"
+        <div className="mt-2 mb-8 flex w-full justify-end">
+          <button
+            type="button"
+            onClick={onForgotPasswordOpen}
             className={`text-[15px] font-bold transition-all hover:underline ${
               isMobile
                 ? 'text-white/80 hover:text-white'
@@ -112,7 +126,7 @@ export function LoginForm({
             }`}
           >
             Lupa Password?
-          </Link>
+          </button>
         </div>
 
         <Form.Item className="mb-6">
@@ -149,9 +163,7 @@ export function LoginForm({
         <GoogleAuthButton
           isLoading={isLoading}
           isMobile={isMobile}
-          onClick={() => {
-            console.log('Login with Google clicked');
-          }}
+          onClick={onGoogleLogin}
         />
 
         <div
@@ -170,6 +182,13 @@ export function LoginForm({
           </Link>
         </div>
       </Form>
+
+      <ForgotPasswordModal
+        open={forgotPasswordModalOpen}
+        isLoading={forgotPasswordLoading}
+        onCancel={onForgotPasswordCancel}
+        onSubmit={onForgotPasswordSubmit}
+      />
     </div>
   );
 }

@@ -1,11 +1,70 @@
 'use client';
 
 import Image from 'next/image';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {useEffect, useRef} from 'react';
+import {useAppNotification} from '@/lib/use-app-notification';
 import {useAdminLogin} from './hooks/useAdminLogin';
 import {AdminLoginForm} from './partials/adminLoginForm';
 
+function getAdminLoginErrorMessage(code: string, detail: string | null) {
+  if (detail) {
+    return detail;
+  }
+
+  switch (code) {
+    case 'missing_code':
+      return 'Google login admin gagal: kode otorisasi tidak ditemukan.';
+    case 'exchange_failed':
+      return 'Google login admin gagal saat menukar kode sesi.';
+    case 'session_not_found':
+      return 'Google login admin gagal: sesi tidak terbentuk.';
+    case 'sync_failed':
+      return 'Google login admin gagal saat sinkronisasi profil.';
+    case 'admin_only':
+      return 'Akun ini tidak memiliki akses admin.';
+    default:
+      return 'Google login admin gagal. Silakan coba lagi.';
+  }
+}
+
 export default function AdminLoginPage() {
-  const {form, isLoading, onFinish} = useAdminLogin();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const shownRef = useRef(false);
+  const notify = useAppNotification();
+
+  const {
+    form,
+    isLoading,
+    onFinish,
+    onGoogleLogin,
+    isForgotPasswordModalOpen,
+    isForgotPasswordLoading,
+    openForgotPasswordModal,
+    closeForgotPasswordModal,
+    onForgotPasswordSubmit,
+  } = useAdminLogin();
+
+  useEffect(() => {
+    if (shownRef.current) {
+      return;
+    }
+
+    const authError = searchParams.get('authError');
+    const authMessage = searchParams.get('authMessage');
+
+    if (!authError) {
+      return;
+    }
+
+    shownRef.current = true;
+    notify.error(
+      'Google Login Failed',
+      getAdminLoginErrorMessage(authError, authMessage),
+    );
+    router.replace('/admin/login');
+  }, [notify, router, searchParams]);
 
   return (
     <div className="min-h-screen w-full overflow-hidden">
@@ -54,6 +113,12 @@ export default function AdminLoginPage() {
               form={form}
               isLoading={isLoading}
               onSubmit={onFinish}
+              onGoogleLogin={onGoogleLogin}
+              forgotPasswordModalOpen={isForgotPasswordModalOpen}
+              forgotPasswordLoading={isForgotPasswordLoading}
+              onForgotPasswordOpen={openForgotPasswordModal}
+              onForgotPasswordCancel={closeForgotPasswordModal}
+              onForgotPasswordSubmit={onForgotPasswordSubmit}
               isMobile
               formName="admin_login_form_mobile"
             />
@@ -177,6 +242,12 @@ export default function AdminLoginPage() {
               form={form}
               isLoading={isLoading}
               onSubmit={onFinish}
+              onGoogleLogin={onGoogleLogin}
+              forgotPasswordModalOpen={isForgotPasswordModalOpen}
+              forgotPasswordLoading={isForgotPasswordLoading}
+              onForgotPasswordOpen={openForgotPasswordModal}
+              onForgotPasswordCancel={closeForgotPasswordModal}
+              onForgotPasswordSubmit={onForgotPasswordSubmit}
               formName="admin_login_form_desktop"
             />
           </div>
