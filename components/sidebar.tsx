@@ -73,7 +73,7 @@ export default function Sidebar({
       } = await supabase.auth.getUser();
 
       if (!user) {
-        setProfile({fullname: 'Guest', role: 'User'});
+        setProfile({fullname: 'Guest', role: 'User', avatar_url: null});
         return;
       }
 
@@ -93,6 +93,7 @@ export default function Sidebar({
       setProfile({
         fullname: data?.fullname ?? user.email ?? 'User',
         role: roleName,
+        avatar_url: user.user_metadata.avatar_url ?? null,
       });
     };
 
