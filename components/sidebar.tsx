@@ -197,7 +197,7 @@ export default function Sidebar({
         {!isCollapsed && (
           <div className="mx-3 mt-4 rounded-2xl bg-white/10 border border-white/10 px-3 py-3">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-[#32386E] inline-flex items-center justify-center text-sm font-bold uppercase">
+              <div className="relative overflow-hidden h-9 w-9 rounded-xl bg-[#32386E] inline-flex items-center justify-center text-sm font-bold uppercase">
                 {profile.avatar_url ? (
                   <Image
                     src={profile.avatar_url}
