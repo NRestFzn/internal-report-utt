@@ -12,7 +12,11 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto w-full max-w-210 pb-7 md:pb-10">
       <Link
-        href={profile && profile.role === 'admin' ? '/admin' : '/dashboard'}
+        href={
+          profile && profile.role === 'admin'
+            ? '/admin/dashboard'
+            : '/dashboard'
+        }
         className="mb-3 inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-3 py-1.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/15 hover:text-white"
       >
         <ChevronLeft size={15} />
