@@ -38,19 +38,28 @@ export function AdminLoginForm({
       style={{fontFamily: 'var(--font-inter), sans-serif'}}
     >
       <div className="mb-8 text-left">
+        <div
+          className={`mb-3 inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.14em] uppercase ${
+            isMobile
+              ? 'border border-white/35 bg-white/15 text-white/95'
+              : 'border border-[#C7D2FE] bg-[#EEF2FF] text-[#3730A3]'
+          }`}
+        >
+          Portal Admin
+        </div>
         <h2
           className={`mb-1 text-[26px] font-extrabold leading-9.75 tracking-[0] ${
             isMobile ? 'text-white' : 'text-[#111827]'
           }`}
         >
-          Selamat Datang
+          Selamat Datang, Admin
         </h2>
         <p
           className={`text-[14px] font-normal leading-5.25 tracking-[0] ${
             isMobile ? 'text-white/70' : 'text-[#94A3B8]'
           }`}
         >
-          Masuk ke akun Anda untuk melanjutkan
+          Masuk ke akun administrator Anda untuk melanjutkan
         </p>
       </div>
 
@@ -70,7 +79,7 @@ export function AdminLoginForm({
                 isMobile ? 'text-white/90' : 'text-[#64748B]'
               }`}
             >
-              Email
+              Email Admin
             </span>
           }
           rules={[
@@ -140,7 +149,7 @@ export function AdminLoginForm({
                 : 'bg-[#3B3F6F]! hover:bg-[#2A2D54]! text-white!'
             }`}
           >
-            Sign In
+            Sign In as Admin
           </Button>
         </Form.Item>
 
@@ -153,7 +162,7 @@ export function AdminLoginForm({
               isMobile ? 'text-white/55' : 'text-[#94A3B8]'
             }`}
           >
-            atau
+            atau lanjutkan dengan
           </span>
           <div
             className={`h-px flex-1 ${isMobile ? 'bg-white/25' : 'bg-[#E2E8F0]'}`}
@@ -171,14 +180,14 @@ export function AdminLoginForm({
             isMobile ? 'text-white/65' : 'text-[#94A3B8]'
           }`}
         >
-          Belum punya akun?{' '}
+          Bukan admin?{' '}
           <Link
-            href="/register"
+            href="/login"
             className={`ml-1 font-semibold hover:underline ${
               isMobile ? 'text-white' : 'text-[#3B3F6F]'
             }`}
           >
-            Daftar Sekarang
+            Masuk sebagai user
           </Link>
         </div>
       </Form>

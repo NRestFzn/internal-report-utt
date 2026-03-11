@@ -101,12 +101,20 @@ export default function AdminLoginPage() {
             />
           </div>
 
+          <div className="mb-4 inline-flex items-center rounded-full border border-white/35 bg-white/12 px-4 py-1.5 text-[11px] font-semibold tracking-[0.2em] text-white/95 uppercase">
+            Admin Portal
+          </div>
+
           <h1
-            className="font-micro5 mb-8 text-center text-[16px] leading-[1.1] tracking-[0.12em] text-white"
+            className="font-micro5 mb-3 text-center text-[16px] leading-[1.1] tracking-[0.12em] text-white"
             style={{fontFamily: 'var(--font-micro-5), sans-serif'}}
           >
             INTERNAL REPORT UNITED TRANSWORLD TRADING
           </h1>
+
+          <p className="mb-8 text-center text-[12px] font-medium tracking-[0.12em] text-white/80 uppercase">
+            Area akses khusus administrator
+          </p>
 
           <div className="w-full">
             <AdminLoginForm
@@ -172,12 +180,20 @@ export default function AdminLoginPage() {
               />
             </div>
 
+            <div className="mb-5 inline-flex items-center rounded-full border border-white/35 bg-white/12 px-5 py-2 text-[12px] font-semibold tracking-[0.22em] text-white/95 uppercase">
+              Admin Portal
+            </div>
+
             <h1
-              className="font-micro5 mb-6 text-center text-[26px] leading-[1.1] tracking-[0.12em] text-white"
+              className="font-micro5 mb-3 text-center text-[26px] leading-[1.1] tracking-[0.12em] text-white"
               style={{fontFamily: 'var(--font-micro-5), sans-serif'}}
             >
               INTERNAL REPORT UNITED TRANSWORLD TRADING
             </h1>
+
+            <p className="mb-6 text-center text-[13px] font-medium tracking-[0.15em] text-white/80 uppercase">
+              Area akses khusus administrator
+            </p>
 
             <div className="relative h-120 w-120">
               <Image

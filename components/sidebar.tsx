@@ -30,8 +30,8 @@ interface SidebarProps {
 
 interface ProfileState {
   fullname: string;
-  avatar_url?: string;
   role: string;
+  avatar_url?: string | null;
 }
 
 const supabase = createClient();
@@ -47,6 +47,7 @@ export default function Sidebar({
   const [profile, setProfile] = useState<ProfileState>({
     fullname: 'User',
     role: 'Engineer',
+    avatar_url: null,
   });
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
