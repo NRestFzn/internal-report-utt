@@ -30,6 +30,7 @@ interface SidebarProps {
 
 interface ProfileState {
   fullname: string;
+  avatar?: string;
   role: string;
 }
 
@@ -195,7 +196,16 @@ export default function Sidebar({
           <div className="mx-3 mt-4 rounded-2xl bg-white/10 border border-white/10 px-3 py-3">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-xl bg-[#32386E] inline-flex items-center justify-center text-sm font-bold uppercase">
-                {profile.fullname.slice(0, 2)}
+                {profile.avatar ? (
+                  <Image
+                    src={profile.avatar}
+                    alt="Avatar"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <span>{profile.fullname.slice(0, 2)}</span>
+                )}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-[23px] leading-tight font-semibold text-white">
