@@ -79,7 +79,7 @@ export default function Sidebar({
 
       const {data} = await supabase
         .from('profiles')
-        .select('fullname, roles(name)')
+        .select('fullname, roles(name), avatar_url')
         .eq('id', user.id)
         .maybeSingle();
 
@@ -93,7 +93,7 @@ export default function Sidebar({
       setProfile({
         fullname: data?.fullname ?? user.email ?? 'User',
         role: roleName,
-        avatar_url: user.user_metadata.avatar_url ?? null,
+        avatar_url: data?.avatar_url ?? null,
       });
     };
 
