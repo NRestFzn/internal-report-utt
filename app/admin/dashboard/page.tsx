@@ -301,7 +301,7 @@ export default function DashboardPage() {
               Aktivitas MOP Terbaru
             </h2>
             <Link
-              href="/admin/dashboard/history"
+              href="/admin/dashboard/monitoring"
               className="inline-flex items-center gap-1 text-sm font-semibold text-[#5D63A8] transition-colors hover:text-[#38408F]"
             >
               Lihat Semua

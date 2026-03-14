@@ -66,6 +66,8 @@ export async function getMonitoringReports(): Promise<ReportData[]> {
       profiles ( fullname ),
       mop_report_files (
         id,
+        title,
+        file_url,
         file_name,
         file_date
       )
@@ -93,6 +95,13 @@ export async function getMonitoringReports(): Promise<ReportData[]> {
       submittedDate: report.created_at,
       status: normalizeStatus(report.status),
       serviceReportCount: files.length,
+      serviceReports: files.map((file) => ({
+        id: file.id,
+        title: file.title?.trim() || file.file_name,
+        fileName: file.file_name,
+        fileUrl: file.file_url ?? '',
+        fileDate: file.file_date,
+      })),
       adminNote: report.admin_note,
       revisionNote: report.revision_note,
     };
